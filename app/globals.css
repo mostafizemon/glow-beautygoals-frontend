@@ -1,26 +1,170 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-background: #FDF6F0;
+  --color-foreground: #2D2D2D;
+  --color-rose-gold: #C9956C;
+  --color-rose-gold-dark: #B8845B;
+  --color-blush: #F4B8C1;
+  --color-cream: #FDF6F0;
+  --color-cream-dark: #f5ebe0;
+  --color-charcoal: #2D2D2D;
+  --color-charcoal-light: #404040;
+  
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Inter', sans-serif;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --animate-shimmer: shimmer 2s linear infinite;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    color: var(--color-foreground);
+    background: var(--color-background);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-medium tracking-tight text-foreground;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f5ebe0;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #C9956C;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #B8845B;
+  }
+}
+
+/* Loading skeleton */
+@layer utilities {
+  .skeleton {
+    @apply animate-shimmer bg-gradient-to-r from-cream-dark via-cream to-cream-dark bg-[length:200%_100%] rounded;
+  }
+}
+
+@layer components {
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-pending {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  .badge-confirmed {
+    @apply bg-blue-100 text-blue-800;
+  }
+  .badge-processing {
+    @apply bg-indigo-100 text-indigo-800;
+  }
+  .badge-shipped {
+    @apply bg-purple-100 text-purple-800;
+  }
+  .badge-delivered {
+    @apply bg-green-100 text-green-800;
+  }
+  .badge-cancelled {
+    @apply bg-red-100 text-red-800;
+  }
+
+  /* Button base styles */
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm min-h-[44px];
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm min-h-[44px] bg-rose-gold text-white hover:bg-rose-gold-dark focus:ring-rose-gold shadow-md hover:shadow-lg active:scale-[0.98];
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm min-h-[44px] bg-charcoal text-white hover:bg-charcoal-light focus:ring-charcoal;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm min-h-[44px] border-2 border-rose-gold text-rose-gold hover:bg-rose-gold hover:text-white focus:ring-rose-gold;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm min-h-[44px] bg-red-500 text-white hover:bg-red-600 focus:ring-red-500;
+  }
+  .btn-success {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm min-h-[44px] bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-emerald-500;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm min-h-[44px] text-charcoal hover:bg-cream-dark focus:ring-rose-gold;
+  }
+  .btn-sm {
+    @apply px-4 py-2 text-xs min-h-[36px];
+  }
+
+  /* Input styles */
+  .input {
+    @apply w-full px-4 py-3 border border-gray-200 rounded-lg text-sm bg-white text-charcoal placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-gold/30 focus:border-rose-gold transition-all duration-200 min-h-[44px];
+  }
+  .input-label {
+    @apply block text-sm font-medium text-charcoal mb-1.5;
+  }
+
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300;
+  }
+  .card-hover {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-0.5;
+  }
+  
+  /* App-specific elements */
+  .glass-nav {
+    @apply fixed top-0 w-full z-50 bg-background/90 backdrop-blur-md border-b border-black/5;
+  }
+  
+  .product-img-wrap {
+    @apply relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-cream-dark/50 mb-4;
+  }
+  
+  .product-img {
+    @apply object-cover w-full h-full transition-transform duration-700 group-hover:scale-105;
+  }
+}
+
+/* Toast animations */
+.toast-enter {
+  animation: fadeInUp 0.3s ease-out;
+}
+.toast-exit {
+  animation: fadeInUp 0.3s ease-in reverse;
 }
