@@ -8,6 +8,7 @@ interface Product {
   images: string[];
   category: string;
   is_featured: boolean;
+  is_free_delivery?: boolean;
 }
 
 async function getProducts(category?: string): Promise<Product[]> {

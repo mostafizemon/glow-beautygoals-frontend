@@ -4,9 +4,14 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Glow & Beauty Goals",
   description: "Premium Skincare and Beauty Platform",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
   openGraph: {
     title: "Glow & Beauty Goals",
     description: "Discover your natural glow with our premium skincare collections.",
+    images: [{ url: "/logo.png" }],
   },
 };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -52,7 +53,16 @@ export default function AdminLayout({
       {/* Sidebar */}
       <aside className="w-full md:w-64 bg-white border-r border-gray-100 flex-shrink-0 flex flex-col md:fixed md:h-screen md:top-0 md:left-0 z-40">
         <div className="p-6 border-b border-gray-100 hidden md:block">
-          <h2 className="font-serif text-xl text-charcoal">Admin Portal</h2>
+          <Link href="/">
+            <Image
+              src="/logo.png"
+              alt="Glow & Beauty Goals"
+              width={140}
+              height={56}
+              className="h-14 w-auto object-contain"
+              priority
+            />
+          </Link>
           {role && <span className="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full uppercase tracking-wider">{role}</span>}
         </div>
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -69,6 +79,15 @@ export default function AdminLayout({
               className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${pathname.includes('/admin/products') ? 'bg-rose-gold/10 text-rose-gold' : 'text-gray-600 hover:bg-gray-50'}`}
             >
               Products
+            </Link>
+          )}
+
+          {role === 'admin' && (
+            <Link 
+              href="/admin/categories" 
+              className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${pathname.includes('/admin/categories') ? 'bg-rose-gold/10 text-rose-gold' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+              Categories
             </Link>
           )}
 

@@ -10,6 +10,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [categories, setCategories] = useState<{id: string; name: string; slug: string}[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -71,6 +73,13 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     };
 
     fetchProduct();
+
+    // Fetch categories for the dropdown
+    fetch('http://localhost:8080/api/v1/categories')
+      .then(res => res.json())
+      .then(data => setCategories(data || []))
+      .catch(console.error)
+      .finally(() => setCategoriesLoading(false));
   }, [resolvedParams.id]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,10 +268,15 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
               <div>
                 <label className="input-label" htmlFor="category">Category</label>
                 <select id="category" className="input bg-white" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
-                  <option value="serum">Serum & Treatment</option>
-                  <option value="moisturizer">Moisturizer</option>
-                  <option value="cleanser">Cleanser</option>
-                  <option value="oil">Face Oil</option>
+                  {categoriesLoading ? (
+                    <option>Loading categories...</option>
+                  ) : categories.length === 0 ? (
+                    <option value="">No categories yet — add one first</option>
+                  ) : (
+                    categories.map(cat => (
+                      <option key={cat.id} value={cat.slug}>{cat.name}</option>
+                    ))
+                  )}
                 </select>
               </div>
 
