@@ -28,10 +28,10 @@ export default function FloatingContact() {
   if (!contact) return null;
 
   const whatsappUrl = contact.whatsapp
-    ? `https://wa.me/${contact.whatsapp.replace(/\D/g, '')}`
+    ? `https://wa.me/${String(contact.whatsapp).replace(/\D/g, '')}`
     : null;
   const callUrl = contact.phone
-    ? `tel:${contact.phone}`
+    ? `tel:${String(contact.phone)}`
     : null;
 
   return (
