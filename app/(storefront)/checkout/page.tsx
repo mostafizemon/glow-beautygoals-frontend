@@ -1,4 +1,5 @@
 'use client';
+import { getApiUrl } from '@/lib/api';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -66,7 +67,7 @@ export default function CheckoutPage() {
     };
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/orders`, {
+      const res = await fetch(`${getApiUrl()}/api/v1/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

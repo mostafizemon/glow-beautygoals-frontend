@@ -1,3 +1,4 @@
+import { getApiUrl } from '@/lib/api';
 import Link from 'next/link';
 import AddToCartButton from '../../../components/AddToCartButton';
 import BuyNowButton from '../../../components/BuyNowButton';
@@ -21,12 +22,12 @@ interface Product {
 
 async function getProduct(slug: string): Promise<Product | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8085'}/api/v1/products/slug/${slug}`, { 
+    const res = await fetch(`${getApiUrl()}/api/v1/products/slug/${slug}`, { 
       next: { revalidate: 60 } 
     });
     if (!res.ok) {
       // If it fails by slug, maybe the slug IS the id (for older products)
-      const fallbackRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8085'}/api/v1/products/${slug}`, {
+      const fallbackRes = await fetch(`${getApiUrl()}/api/v1/products/${slug}`, {
         next: { revalidate: 60 }
       });
       if (!fallbackRes.ok) return null;
@@ -41,7 +42,7 @@ async function getProduct(slug: string): Promise<Product | null> {
 
 async function getRelatedProducts(category: string, currentProductId: string): Promise<Product[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8085'}/api/v1/products?category=${category}`, {
+    const res = await fetch(`${getApiUrl()}/api/v1/products?category=${category}`, {
       next: { revalidate: 60 }
     });
     if (!res.ok) return [];

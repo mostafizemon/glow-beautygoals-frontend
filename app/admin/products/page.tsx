@@ -1,4 +1,5 @@
 'use client';
+import { getApiUrl } from '@/lib/api';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -29,7 +30,7 @@ export default function AdminProducts() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/products`, {
+      const res = await fetch(`${getApiUrl()}/api/v1/products`, {
         headers: { 'Authorization': `Bearer ${getAuthToken()}` }
       });
       if (res.ok) {
@@ -54,7 +55,7 @@ export default function AdminProducts() {
 
     setIsDeleting(id);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/products/${id}`, {
+      const res = await fetch(`${getApiUrl()}/api/v1/admin/products/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${getAuthToken()}`

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+import { getApiUrl } from '@/lib/api';
+const API_URL = getApiUrl();
 
 const getAuthToken = () =>
   document.cookie

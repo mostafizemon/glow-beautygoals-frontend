@@ -19,7 +19,8 @@ interface DashboardStats {
   }[];
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+import { getApiUrl } from '@/lib/api';
+const API_URL = getApiUrl();
 
 const getAuthToken = () => {
   if (typeof document === 'undefined') return '';

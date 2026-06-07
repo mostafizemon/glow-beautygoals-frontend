@@ -1,4 +1,5 @@
 'use client';
+import { getApiUrl } from '@/lib/api';
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
@@ -41,7 +42,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/products/${resolvedParams.id}`);
+        const res = await fetch(`${getApiUrl()}/api/v1/products/${resolvedParams.id}`);
         if (!res.ok) throw new Error('Product not found');
         const data = await res.json();
         
@@ -75,7 +76,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     fetchProduct();
 
     // Fetch categories for the dropdown
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/categories`)
+    fetch(`${getApiUrl()}/api/v1/categories`)
       .then(res => res.json())
       .then(data => setCategories(data || []))
       .catch(console.error)
@@ -125,7 +126,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       data.append('image', file);
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/products/upload`, {
+        const res = await fetch(`${getApiUrl()}/api/v1/admin/products/upload`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${getAuthToken()}`
@@ -171,7 +172,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         is_active: formData.is_active
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/products/${resolvedParams.id}`, {
+      const res = await fetch(`${getApiUrl()}/api/v1/admin/products/${resolvedParams.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

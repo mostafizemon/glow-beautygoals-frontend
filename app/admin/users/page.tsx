@@ -1,4 +1,5 @@
 'use client';
+import { getApiUrl } from '@/lib/api';
 
 import { useEffect, useState } from 'react';
 
@@ -30,7 +31,7 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/users`, {
+      const res = await fetch(`${getApiUrl()}/api/v1/admin/users`, {
         headers: { 'Authorization': `Bearer ${getAuthToken()}` }
       });
       if (res.ok) {
@@ -60,7 +61,7 @@ export default function UserManagement() {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/users`, {
+      const res = await fetch(`${getApiUrl()}/api/v1/admin/users`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

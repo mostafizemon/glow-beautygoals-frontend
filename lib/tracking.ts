@@ -14,7 +14,8 @@ const getCookie = (name: string) => {
   return '';
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+import { getApiUrl } from '@/lib/api';
+const API_URL = getApiUrl();
 
 // Simple SHA-256 hash function for Advanced Matching
 export async function hashData(data: string): Promise<string> {

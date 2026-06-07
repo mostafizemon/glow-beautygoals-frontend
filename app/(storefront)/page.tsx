@@ -1,3 +1,4 @@
+import { getApiUrl } from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
 import ProductCard from '../components/ProductCard';
@@ -23,7 +24,7 @@ interface Category {
 
 async function getFeaturedProducts(): Promise<Product[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8085'}/api/v1/products?is_featured=true`, { next: { revalidate: 60 } });
+    const res = await fetch(`${getApiUrl()}/api/v1/products?is_featured=true`, { next: { revalidate: 60 } });
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : [];
@@ -35,7 +36,7 @@ async function getFeaturedProducts(): Promise<Product[]> {
 
 async function getCategories(): Promise<Category[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8085'}/api/v1/categories`, { next: { revalidate: 60 } });
+    const res = await fetch(`${getApiUrl()}/api/v1/categories`, { next: { revalidate: 60 } });
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : [];

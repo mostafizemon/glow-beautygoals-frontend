@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import AddToCartButton from './AddToCartButton';
 import { motion } from 'framer-motion';
 
@@ -31,9 +32,18 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const [imgSrc, setImgSrc] = useState(imageUrl);
   const [added, setAdded]   = useState(false);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const handleHoverIn  = () => { if (image2Url) setImgSrc(image2Url); };
   const handleHoverOut = () => setImgSrc(imageUrl);
+
+  const handleNavigate = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    startTransition(() => {
+      router.push(productLink);
+    });
+  };
 
   return (
     <motion.article
@@ -47,7 +57,7 @@ export default function ProductCard({ product }: { product: Product }) {
     >
 
       {/* ── Image ── */}
-      <Link href={productLink} className="relative aspect-[4/5] overflow-hidden bg-[#FDFBF9] block">
+      <a href={productLink} onClick={handleNavigate} className="relative aspect-[4/5] overflow-hidden bg-[#FDFBF9] block">
         <img
           src={imgSrc}
           alt={product.name}
@@ -57,6 +67,13 @@ export default function ProductCard({ product }: { product: Product }) {
 
         {/* Subtle Gradient overlay on hover */}
         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* Loading overlay during transition */}
+        {isPending && (
+          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-30 flex items-center justify-center transition-all duration-300">
+            <div className="w-8 h-8 border-2 border-rose-gold border-t-transparent rounded-full animate-spin shadow-lg"></div>
+          </div>
+        )}
 
         {/* Badges — top left */}
         <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
@@ -106,17 +123,17 @@ export default function ProductCard({ product }: { product: Product }) {
             added={added}
           />
         </div>
-      </Link>
+      </a>
 
       {/* ── Content ── */}
       <div className="flex flex-col flex-1 px-5 pt-5 pb-6 gap-3">
         {/* Name + Price row */}
         <div className="flex flex-col gap-1">
-          <Link href={productLink} className="flex-1 min-w-0">
+          <a href={productLink} onClick={handleNavigate} className="flex-1 min-w-0">
             <h3 className="font-serif text-lg md:text-xl text-charcoal leading-snug line-clamp-2 hover:text-rose-gold transition-colors duration-300">
               {product.name}
             </h3>
-          </Link>
+          </a>
           
           <p className="text-xs text-gray-500 font-light line-clamp-1 leading-relaxed">
             {product.description}

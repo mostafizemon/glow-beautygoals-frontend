@@ -1,4 +1,5 @@
 'use client';
+import { getApiUrl } from '@/lib/api';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -16,7 +17,7 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/login`, {
+      const res = await fetch(`${getApiUrl()}/api/v1/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

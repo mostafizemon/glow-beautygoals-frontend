@@ -1,4 +1,5 @@
 'use client';
+import { getApiUrl } from '@/lib/api';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -35,7 +36,7 @@ export default function NewProduct() {
   };
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/categories`)
+    fetch(`${getApiUrl()}/api/v1/categories`)
       .then(res => res.json())
       .then(data => setCategories(data || []))
       .catch(console.error)
@@ -78,7 +79,7 @@ export default function NewProduct() {
       data.append('image', file);
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/products/upload`, {
+        const res = await fetch(`${getApiUrl()}/api/v1/admin/products/upload`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${getAuthToken()}`
@@ -126,7 +127,7 @@ export default function NewProduct() {
 
       console.log("SENDING PAYLOAD TO BACKEND:", payload);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/products`, {
+      const res = await fetch(`${getApiUrl()}/api/v1/admin/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -12,7 +12,8 @@ export default function TrackingScripts() {
 
   useEffect(() => {
     // Fetch pixel IDs from our backend
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    import { getApiUrl } from '@/lib/api';
+const API_URL = getApiUrl();
     fetch(`${API_URL}/api/v1/config/pixels`)
       .then(res => res.json())
       .then(data => {
