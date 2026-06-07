@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Script from 'next/script';
 import { usePathname } from 'next/navigation';
 import { trackEvent } from '@/lib/tracking';
+import { getApiUrl } from '@/lib/api';
 
 export default function TrackingScripts() {
   const [metaPixel, setMetaPixel] = useState<string | null>(null);
@@ -12,8 +13,7 @@ export default function TrackingScripts() {
 
   useEffect(() => {
     // Fetch pixel IDs from our backend
-    import { getApiUrl } from '@/lib/api';
-const API_URL = getApiUrl();
+    const API_URL = getApiUrl();
     fetch(`${API_URL}/api/v1/config/pixels`)
       .then(res => res.json())
       .then(data => {
