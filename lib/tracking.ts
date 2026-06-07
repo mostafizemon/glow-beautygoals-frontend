@@ -17,6 +17,14 @@ const getCookie = (name: string) => {
 import { getApiUrl } from '@/lib/api';
 const API_URL = getApiUrl();
 
+const tikTokEventNames: Record<string, string> = {
+  Purchase: 'CompletePayment',
+};
+
+function getTikTokEventName(eventName: string) {
+  return tikTokEventNames[eventName] || eventName;
+}
+
 // Simple SHA-256 hash function for Advanced Matching
 export async function hashData(data: string): Promise<string> {
   if (!data) return '';
@@ -57,7 +65,11 @@ export const trackEvent = async (eventName: string, customData: any = {}, userDa
 
     // 2. Browser-Side Tracking (TikTok)
     if (typeof window !== 'undefined' && (window as any).ttq) {
-      (window as any).ttq.track(eventName, customData, { event_id: eventId });
+      if (eventName === 'PageView') {
+        (window as any).ttq.page({ event_id: eventId });
+      } else {
+        (window as any).ttq.track(getTikTokEventName(eventName), customData, { event_id: eventId });
+      }
     }
 
     // 3. Server-Side Tracking (Go Backend CAPI)
