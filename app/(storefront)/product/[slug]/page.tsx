@@ -2,6 +2,8 @@ import Link from 'next/link';
 import AddToCartButton from '../../../components/AddToCartButton';
 import BuyNowButton from '../../../components/BuyNowButton';
 import ProductGallery from '../../../components/ProductGallery';
+import ProductCard from '../../../components/ProductCard';
+import ViewContentTracker from '../../../components/ViewContentTracker';
 import { notFound } from 'next/navigation';
 
 interface Product {
@@ -12,19 +14,19 @@ interface Product {
   offer_price?: number;
   description: string;
   images: string[];
-  category: string;
+  categories: string[];
   stock: number;
   is_free_delivery?: boolean;
 }
 
 async function getProduct(slug: string): Promise<Product | null> {
   try {
-    const res = await fetch(`http://localhost:8080/api/v1/products/slug/${slug}`, { 
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/products/slug/${slug}`, { 
       cache: 'no-store' 
     });
     if (!res.ok) {
       // If it fails by slug, maybe the slug IS the id (for older products)
-      const fallbackRes = await fetch(`http://localhost:8080/api/v1/products/${slug}`, {
+      const fallbackRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/products/${slug}`, {
         cache: 'no-store'
       });
       if (!fallbackRes.ok) return null;
@@ -37,6 +39,22 @@ async function getProduct(slug: string): Promise<Product | null> {
   }
 }
 
+async function getRelatedProducts(category: string, currentProductId: string): Promise<Product[]> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/products?category=${category}`, {
+      cache: 'no-store'
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const allProducts = Array.isArray(data) ? data : [];
+    // Filter out the current product and limit to 4 items
+    return allProducts.filter((p: Product) => p.id !== currentProductId).slice(0, 4);
+  } catch (error) {
+    console.error("Failed to fetch related products:", error);
+    return [];
+  }
+}
+
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   // Await the params Promise
   const resolvedParams = await params;
@@ -46,11 +64,15 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     notFound();
   }
 
+  const primaryCategory = product.categories && product.categories.length > 0 ? product.categories[0] : 'all';
+  const relatedProducts = await getRelatedProducts(primaryCategory, product.id);
+
   const validImages = product.images?.filter((img: string) => img && img.trim() !== '') || [];
   const imageUrl = validImages.length > 0 ? validImages[0] : "/cream.png";
 
   return (
     <div className="w-full bg-background min-h-screen">
+      <ViewContentTracker product={product} />
       {/* Breadcrumbs */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-6">
         <nav className="flex text-xs font-medium tracking-wider text-gray-500 uppercase" aria-label="Breadcrumb">
@@ -86,9 +108,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
           {/* Product Info */}
           <div className="w-full md:w-1/2 pt-6 md:pt-12">
-            {product.category && (
+            {product.categories && product.categories.length > 0 && (
               <span className="text-xs font-bold tracking-[0.2em] text-rose-gold uppercase mb-4 block">
-                {product.category}
+                {product.categories.join(', ')}
               </span>
             )}
             
@@ -116,13 +138,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 <div className="w-full sm:flex-1">
                   <AddToCartButton 
                     product={product} 
-                    className="w-full bg-white text-charcoal border-2 border-charcoal py-4 px-8 rounded-full text-sm font-bold tracking-wider hover:bg-gray-50 transition-colors shadow-sm flex justify-center items-center gap-2"
+                    className="group w-full bg-white text-charcoal border-2 border-charcoal py-4 px-8 rounded-full text-sm font-bold tracking-wider hover:bg-gray-50 hover:-translate-y-1 hover:shadow-md active:translate-y-0 active:shadow-sm transition-all duration-300 ease-out flex justify-center items-center gap-2"
                   />
                 </div>
                 <div className="w-full sm:flex-1">
                   <BuyNowButton 
                     product={product} 
-                    className="w-full bg-charcoal text-white py-4 px-8 rounded-full text-sm font-bold tracking-wider hover:bg-black transition-colors shadow-lg shadow-black/10 flex justify-center items-center gap-2"
+                    className="group w-full bg-charcoal text-white py-4 px-8 rounded-full text-sm font-bold tracking-wider hover:bg-black hover:-translate-y-1 hover:shadow-xl hover:shadow-charcoal/20 active:translate-y-0 active:shadow-md transition-all duration-300 ease-out flex justify-center items-center gap-2"
                   />
                 </div>
               </div>
@@ -150,6 +172,41 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       </div>
+
+      {/* Related Products Section */}
+      {relatedProducts && relatedProducts.length > 0 && (
+        <div className="border-t border-gray-100 bg-gray-50/50 py-16 md:py-24">
+          <div className="max-w-7xl mx-auto px-6 md:px-12">
+            <div className="flex items-center justify-between mb-10">
+              <div>
+                <span className="text-xs font-bold tracking-[0.2em] text-rose-gold uppercase mb-2 block">
+                  More to explore
+                </span>
+                <h2 className="text-3xl font-serif text-charcoal">You May Also Like</h2>
+              </div>
+              <Link href={`/shop?category=${primaryCategory}`} className="hidden md:flex text-sm font-medium text-charcoal hover:text-rose-gold transition-colors items-center gap-1">
+                View All {primaryCategory !== 'all' ? primaryCategory : 'Products'}
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+              </Link>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
+              {relatedProducts.map((relatedProduct, i) => (
+                <div key={relatedProduct.id} style={{ animation: 'revealUp 0.5s ease-out both', animationDelay: `${i * 60}ms` }}>
+                  <ProductCard product={relatedProduct as any} />
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-8 text-center md:hidden">
+              <Link href={`/shop?category=${primaryCategory}`} className="btn-secondary w-full">
+                View All {primaryCategory !== 'all' ? primaryCategory : 'Products'}
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+      
     </div>
   );
 }

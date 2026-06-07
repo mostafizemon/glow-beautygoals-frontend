@@ -2,17 +2,25 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import TrackingScripts from "../components/TrackingScripts";
 import { CartProvider, useCart } from "../context/CartContext";
 import CartDrawer from "../components/CartDrawer";
+import FloatingContact from "../components/FloatingContact";
 
 function Navbar() {
   const { cartCount, setIsCartOpen } = useCart();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="glass-nav py-4 px-6 md:px-12 flex justify-between items-center transition-all duration-300 fixed top-0 w-full z-50">
-      {/* Mobile Menu Button (Placeholder for future) */}
-      <button className="md:hidden p-2 -ml-2 text-text-main focus:outline-none">
+    <>
+      <nav className="glass-nav py-4 px-6 md:px-12 flex justify-between items-center transition-all duration-300 fixed top-0 w-full z-50">
+        {/* Mobile Menu Button */}
+        <button 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="md:hidden p-2 -ml-2 text-text-main focus:outline-none"
+        >
         <svg
           width="24"
           height="24"
@@ -85,7 +93,35 @@ function Navbar() {
           </div>
         </button>
       </div>
-    </nav>
+      </nav>
+
+      {/* Mobile Menu Dropdown */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-[72px] left-0 w-full bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100 z-40 md:hidden flex flex-col"
+          >
+            <Link
+              href="/"
+              onClick={() => setIsMenuOpen(false)}
+              className="px-6 py-4 border-b border-gray-50 text-charcoal font-medium hover:bg-rose-gold/10 hover:text-rose-gold transition-colors"
+            >
+              HOME
+            </Link>
+            <Link
+              href="/shop"
+              onClick={() => setIsMenuOpen(false)}
+              className="px-6 py-4 text-charcoal font-medium hover:bg-rose-gold/10 hover:text-rose-gold transition-colors"
+            >
+              SHOP ALL
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -99,6 +135,7 @@ export default function StorefrontLayout({
       <TrackingScripts />
       <Navbar />
       <CartDrawer />
+      <FloatingContact />
 
       {/* Main Content */}
       <main className="flex-grow pt-[72px] md:pt-[88px]">{children}</main>

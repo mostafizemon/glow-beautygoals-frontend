@@ -20,7 +20,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     price: '',
     offer_price: '',
     stock: '',
-    category: 'serum',
+    categories: [] as string[],
     is_featured: false,
     is_free_delivery: false,
     is_active: true,
@@ -41,7 +41,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/v1/products/${resolvedParams.id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/products/${resolvedParams.id}`);
         if (!res.ok) throw new Error('Product not found');
         const data = await res.json();
         
@@ -52,7 +52,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           price: data.price?.toString() || '',
           offer_price: data.offer_price ? data.offer_price.toString() : '',
           stock: data.stock?.toString() || '',
-          category: data.category || 'serum',
+          categories: data.categories || [],
           is_featured: data.is_featured || false,
           is_free_delivery: data.is_free_delivery || false,
           is_active: data.is_active !== undefined ? data.is_active : true,
@@ -75,7 +75,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     fetchProduct();
 
     // Fetch categories for the dropdown
-    fetch('http://localhost:8080/api/v1/categories')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/categories`)
       .then(res => res.json())
       .then(data => setCategories(data || []))
       .catch(console.error)
@@ -125,7 +125,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       data.append('image', file);
 
       try {
-        const res = await fetch('http://localhost:8080/api/v1/admin/products/upload', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/products/upload`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${getAuthToken()}`
@@ -164,14 +164,14 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         price: parseFloat(formData.price),
         offer_price: formData.offer_price ? parseFloat(formData.offer_price) : 0,
         stock: parseInt(formData.stock, 10),
-        category: formData.category,
+        categories: formData.categories,
         is_featured: formData.is_featured,
         is_free_delivery: formData.is_free_delivery,
         images: imageUrls.filter(url => url && url.trim() !== ''),
         is_active: formData.is_active
       };
 
-      const res = await fetch(`http://localhost:8080/api/v1/admin/products/${resolvedParams.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/products/${resolvedParams.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -266,18 +266,32 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
               <h3 className="font-serif text-xl border-b border-gray-100 pb-4">Organization</h3>
               
               <div>
-                <label className="input-label" htmlFor="category">Category</label>
-                <select id="category" className="input bg-white" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
+                <label className="input-label mb-2 block">Categories</label>
+                <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
                   {categoriesLoading ? (
-                    <option>Loading categories...</option>
+                    <p className="text-sm text-gray-500">Loading categories...</p>
                   ) : categories.length === 0 ? (
-                    <option value="">No categories yet — add one first</option>
+                    <p className="text-sm text-gray-500">No categories yet — add one first</p>
                   ) : (
                     categories.map(cat => (
-                      <option key={cat.id} value={cat.slug}>{cat.name}</option>
+                      <label key={cat.id} className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 text-rose-gold rounded border-gray-300 focus:ring-rose-gold"
+                          checked={formData.categories.includes(cat.slug)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormData({ ...formData, categories: [...formData.categories, cat.slug] });
+                            } else {
+                              setFormData({ ...formData, categories: formData.categories.filter(c => c !== cat.slug) });
+                            }
+                          }}
+                        />
+                        <span className="text-sm text-charcoal">{cat.name}</span>
+                      </label>
                     ))
                   )}
-                </select>
+                </div>
               </div>
 
               <div className="flex items-center pt-4">

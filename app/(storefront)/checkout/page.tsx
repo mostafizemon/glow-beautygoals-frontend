@@ -66,7 +66,7 @@ export default function CheckoutPage() {
     };
 
     try {
-      const res = await fetch('http://localhost:8080/api/v1/orders', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,20 +142,22 @@ export default function CheckoutPage() {
                   {phoneError && <p className="mt-1 text-sm text-red-500">{phoneError}</p>}
                 </div>
                 
-                <div>
-                  <label htmlFor="deliveryArea" className="block text-sm font-medium text-gray-700 mb-1">Delivery Area</label>
-                  <select
-                    id="deliveryArea"
-                    name="deliveryArea"
-                    value={formData.deliveryArea}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-charcoal focus:border-charcoal outline-none transition-all bg-white"
-                  >
-                    <option value="inside">Inside Dhaka (60 Tk)</option>
-                    <option value="outside">Outside Dhaka (120 Tk)</option>
-                  </select>
-                </div>
+                {!hasFreeDelivery && (
+                  <div>
+                    <label htmlFor="deliveryArea" className="block text-sm font-medium text-gray-700 mb-1">Delivery Area</label>
+                    <select
+                      id="deliveryArea"
+                      name="deliveryArea"
+                      value={formData.deliveryArea}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-charcoal focus:border-charcoal outline-none transition-all bg-white"
+                    >
+                      <option value="inside">Inside Dhaka (60 Tk)</option>
+                      <option value="outside">Outside Dhaka (120 Tk)</option>
+                    </select>
+                  </div>
+                )}
 
                 <div>
                   <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Detailed Address</label>

@@ -7,7 +7,8 @@ interface Product {
   id: string;
   name: string;
   price: number;
-  category: string;
+  offer_price?: number;
+  categories: string[];
   stock: number;
   is_active: boolean;
   is_featured: boolean;
@@ -28,7 +29,7 @@ export default function AdminProducts() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/v1/products', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/products`, {
         headers: { 'Authorization': `Bearer ${getAuthToken()}` }
       });
       if (res.ok) {
@@ -53,7 +54,7 @@ export default function AdminProducts() {
 
     setIsDeleting(id);
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/admin/products/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/products/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${getAuthToken()}`
@@ -127,10 +128,19 @@ export default function AdminProducts() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="capitalize text-gray-600">{product.category}</span>
+                      <span className="capitalize text-gray-600">
+                        {product.categories && product.categories.length > 0 ? product.categories.join(', ') : 'None'}
+                      </span>
                     </td>
                     <td className="px-6 py-4 font-medium text-charcoal">
-                      {product.price.toLocaleString()} Tk
+                      {product.offer_price && product.offer_price > 0 ? (
+                        <>
+                          <div className="text-charcoal">{product.offer_price.toLocaleString()} Tk</div>
+                          <div className="text-xs text-gray-400 line-through">Reg: {product.price.toLocaleString()} Tk</div>
+                        </>
+                      ) : (
+                        <div className="text-charcoal">{product.price.toLocaleString()} Tk</div>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${product.stock > 10 ? 'bg-green-100 text-green-700' : product.stock > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>

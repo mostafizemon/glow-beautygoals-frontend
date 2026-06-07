@@ -6,6 +6,16 @@ export default function AdminTrackingConfig() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
+
+  const getAuthToken = () => {
+    if (typeof document !== 'undefined') {
+      return document.cookie
+        .split('; ')
+        .find(row => row.startsWith('admin_token='))
+        ?.split('=')[1] || '';
+    }
+    return '';
+  };
   
   const [formData, setFormData] = useState({
     meta: {
@@ -28,7 +38,9 @@ export default function AdminTrackingConfig() {
 
   const fetchConfig = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/v1/admin/config/tracking');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/config/tracking`, {
+        headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+      });
       if (res.ok) {
         const data = await res.json();
         if (data && data.meta) {
@@ -51,9 +63,12 @@ export default function AdminTrackingConfig() {
     setMessage({ text: '', type: '' });
 
     try {
-      const res = await fetch('http://localhost:8080/api/v1/admin/config/tracking', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/admin/config/tracking`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getAuthToken()}`
+        },
         body: JSON.stringify(formData)
       });
 

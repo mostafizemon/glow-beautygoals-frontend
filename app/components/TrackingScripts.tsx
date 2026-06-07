@@ -29,7 +29,7 @@ export default function TrackingScripts() {
   // Track Page Views when route changes
   useEffect(() => {
     if (metaPixel || tiktokPixel) {
-      trackEvent('ViewContent', { page_path: pathname });
+      trackEvent('PageView', { page_path: pathname });
     }
   }, [pathname, metaPixel, tiktokPixel]);
 

@@ -35,6 +35,49 @@
       transform: translateY(0);
     }
   }
+
+  @keyframes floatY {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33%       { transform: translateY(-14px) rotate(1deg); }
+    66%       { transform: translateY(-7px) rotate(-1deg); }
+  }
+
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes revealUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes slideUpSmall {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  --animate-float: floatY 7s ease-in-out infinite;
+  --animate-slide-in-left: slideInLeft 0.7s ease-out both;
+  --animate-slide-in-right: slideInRight 0.7s ease-out both;
+  --animate-reveal-up: revealUp 0.65s ease-out both;
+  --animate-scale-in: scaleIn 0.5s ease-out both;
+  --animate-slide-up: slideUpSmall 0.25s ease-out both;
 }
 
 @layer base {
