@@ -19,6 +19,8 @@ export default function AddToCartButton({ product, className, onAdded, added }: 
     e.stopPropagation();
 
     trackEvent('AddToCart', {
+      content_type: 'product',
+      content_id: product.id,
       content_ids: [product.id],
       content_name: product.name,
       content_category: product.categories && product.categories.length > 0 ? product.categories[0] : 'uncategorized',

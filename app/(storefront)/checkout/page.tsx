@@ -85,7 +85,9 @@ export default function CheckoutPage() {
         value: grandTotal,
         currency: 'BDT',
         content_type: 'product',
-        contents: cart.map(item => ({ id: item.id, quantity: item.quantity, item_price: item.price }))
+        content_id: cart[0]?.id || '',
+        content_ids: cart.map(item => item.id),
+        contents: cart.map(item => ({ content_id: item.id, id: item.id, quantity: item.quantity, price: item.price, item_price: item.price }))
       }, {
         fn: formData.name, // Will be hashed inside trackEvent if we updated it to hash names, actually tracking.ts currently only hashes em and ph. Let's send em and ph.
         ph: formData.phone

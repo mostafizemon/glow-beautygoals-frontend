@@ -15,6 +15,8 @@ export default function BuyNowButton({ product, className }: { product: any, cla
 
     // Fire dual-tracking event
     trackEvent('AddToCart', {
+      content_type: 'product',
+      content_id: product.id,
       content_ids: [product.id],
       content_name: product.name,
       content_category: product.categories && product.categories.length > 0 ? product.categories[0] : 'uncategorized',

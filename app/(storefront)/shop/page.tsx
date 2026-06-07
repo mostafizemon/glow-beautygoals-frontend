@@ -22,11 +22,11 @@ interface Category {
 
 async function getProducts(category?: string): Promise<Product[]> {
   try {
-    let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/products`;
+    let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8085'}/api/v1/products`;
     if (category && category !== 'all') {
       url += `?category=${category}`;
     }
-    const res = await fetch(url, { cache: 'no-store' });
+    const res = await fetch(url, { next: { revalidate: 60 } });
     if (!res.ok) return [];
     const data = await res.json();
     // API may return null when no products match — always return an array
@@ -39,7 +39,7 @@ async function getProducts(category?: string): Promise<Product[]> {
 
 async function getCategories(): Promise<Category[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/categories`, { cache: 'no-store' });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8085'}/api/v1/categories`, { next: { revalidate: 60 } });
     if (!res.ok) return [];
     return await res.json();
   } catch {
