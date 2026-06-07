@@ -1,8 +1,13 @@
 // Utility for Dual-Tracking (Browser + Server-Side)
 
 // Generate a random ID for event deduplication
-const generateEventId = () => {
+export const generateEventId = () => {
   return 'evt_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
+
+const setCookie = (name: string, value: string, maxAgeDays = 90) => {
+  if (typeof document === 'undefined' || !value) return;
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAgeDays * 24 * 60 * 60}; SameSite=Lax`;
 };
 
 // Helper to get a cookie value by name
@@ -10,7 +15,7 @@ const getCookie = (name: string) => {
   if (typeof document === 'undefined') return '';
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift() || '';
+  if (parts.length === 2) return decodeURIComponent(parts.pop()?.split(';').shift() || '');
   return '';
 };
 
@@ -25,6 +30,33 @@ function getTikTokEventName(eventName: string) {
   return tikTokEventNames[eventName] || eventName;
 }
 
+function persistClickIds() {
+  if (typeof window === 'undefined') return;
+
+  const params = new URLSearchParams(window.location.search);
+  const fbclid = params.get('fbclid');
+  const ttclid = params.get('ttclid');
+
+  if (fbclid && !getCookie('_fbc')) {
+    setCookie('_fbc', `fb.1.${Date.now()}.${fbclid}`);
+  }
+
+  if (ttclid) {
+    setCookie('_ttclid', ttclid);
+  }
+}
+
+export function getTrackingIdentifiers() {
+  persistClickIds();
+
+  return {
+    fbp: getCookie('_fbp'),
+    fbc: getCookie('_fbc'),
+    ttp: getCookie('_ttp'),
+    ttclid: getCookie('_ttclid'),
+  };
+}
+
 // Simple SHA-256 hash function for Advanced Matching
 export async function hashData(data: string): Promise<string> {
   if (!data) return '';
@@ -35,22 +67,19 @@ export async function hashData(data: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-export const trackEvent = async (eventName: string, customData: any = {}, userDataRaw: any = {}) => {
+export const trackEvent = async (eventName: string, customData: any = {}, userDataRaw: any = {}, eventId = generateEventId(), sendServerEvent = true) => {
   try {
-    const eventId = generateEventId();
     const eventTime = Math.floor(Date.now() / 1000);
     const eventUrl = window.location.href;
-
-    const fbp = getCookie('_fbp');
-    const fbc = getCookie('_fbc');
-    const ttp = getCookie('_ttp');
+    const identifiers = getTrackingIdentifiers();
 
     // Hash user data if present (for Advanced Matching)
     const userData = {
       client_user_agent: navigator.userAgent,
-      fbp: fbp || undefined,
-      fbc: fbc || undefined,
-      ttp: ttp || undefined,
+      fbp: identifiers.fbp || undefined,
+      fbc: identifiers.fbc || undefined,
+      ttp: identifiers.ttp || undefined,
+      ttclid: identifiers.ttclid || undefined,
       ...userDataRaw
     };
 
@@ -78,18 +107,21 @@ export const trackEvent = async (eventName: string, customData: any = {}, userDa
       event_id: eventId,
       event_time: eventTime,
       event_url: eventUrl,
+      event_referrer: document.referrer,
       custom_data: customData,
       user_data: userData
     };
 
-    fetch(`${API_URL}/api/v1/events/track`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-      keepalive: true, 
-    }).catch(err => console.error('Failed to trigger CAPI:', err));
+    if (sendServerEvent) {
+      fetch(`${API_URL}/api/v1/events/track`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+        keepalive: true, 
+      }).catch(err => console.error('Failed to trigger CAPI:', err));
+    }
 
   } catch (error) {
     console.error('Tracking Error:', error);

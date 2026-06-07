@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../../context/CartContext';
-import { trackEvent } from '@/lib/tracking';
+import { generateEventId, getTrackingIdentifiers, trackEvent } from '@/lib/tracking';
 
 export default function CheckoutPage() {
   const { cart, cartTotal, clearCart } = useCart();
@@ -52,6 +52,9 @@ export default function CheckoutPage() {
       return;
     }
 
+    const purchaseEventId = generateEventId();
+    const trackingIdentifiers = getTrackingIdentifiers();
+
     const orderPayload = {
       customer: {
         name: formData.name,
@@ -64,6 +67,14 @@ export default function CheckoutPage() {
         price_at_purchase: item.price,
       })),
       total_amount: grandTotal,
+      tracking_events: {
+        event_id: purchaseEventId,
+        event_url: window.location.href,
+        fbp: trackingIdentifiers.fbp,
+        fbc: trackingIdentifiers.fbc,
+        ttp: trackingIdentifiers.ttp,
+        ttclid: trackingIdentifiers.ttclid,
+      },
     };
 
     try {
@@ -88,11 +99,12 @@ export default function CheckoutPage() {
         content_type: 'product',
         content_id: cart[0]?.id || '',
         content_ids: cart.map(item => item.id),
-        contents: cart.map(item => ({ content_id: item.id, id: item.id, quantity: item.quantity, price: item.price, item_price: item.price }))
+        contents: cart.map(item => ({ content_id: item.id, id: item.id, quantity: item.quantity, price: item.price, item_price: item.price })),
+        order_id: orderPayload.tracking_events.event_id,
       }, {
-        fn: formData.name, // Will be hashed inside trackEvent if we updated it to hash names, actually tracking.ts currently only hashes em and ph. Let's send em and ph.
+        fn: formData.name,
         ph: formData.phone
-      });
+      }, purchaseEventId, false);
 
       // Clear cart and redirect
       clearCart();
