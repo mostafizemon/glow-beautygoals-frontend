@@ -60,7 +60,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prevCart, item];
     });
-    // Removed setIsCartOpen(true) so dialog doesn't pop up
+    setIsCartOpen(true);
   };
 
   const removeFromCart = (id: string) => {
