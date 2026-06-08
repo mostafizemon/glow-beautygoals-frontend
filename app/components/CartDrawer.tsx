@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '../context/CartContext';
 
 export default function CartDrawer() {
-  const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart();
   const router = useRouter();
 
   if (!isCartOpen) return null;
@@ -23,7 +23,9 @@ export default function CartDrawer() {
       <div className="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-[101] transform transition-transform duration-300 ease-in-out flex flex-col">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white/80 backdrop-blur-md">
-          <h2 className="text-xl font-serif text-charcoal">Your Cart</h2>
+          <h2 className="text-xl font-serif text-charcoal">
+            Your Cart {cartCount > 0 && <span className="text-sm text-gray-400 ml-2 font-sans">({cartCount} {cartCount === 1 ? 'item' : 'items'})</span>}
+          </h2>
           <button 
             onClick={() => setIsCartOpen(false)}
             className="p-2 -mr-2 text-gray-400 hover:text-charcoal transition-colors rounded-full hover:bg-gray-50"
