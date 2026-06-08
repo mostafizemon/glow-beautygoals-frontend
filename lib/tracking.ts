@@ -95,7 +95,7 @@ export const trackEvent = async (eventName: string, customData: any = {}, userDa
     // 2. Browser-Side Tracking (TikTok)
     if (typeof window !== 'undefined' && (window as any).ttq) {
       if (eventName === 'PageView') {
-        (window as any).ttq.page({ event_id: eventId });
+        (window as any).ttq.track('PageView', {}, { event_id: eventId });
       } else {
         (window as any).ttq.track(getTikTokEventName(eventName), customData, { event_id: eventId });
       }
