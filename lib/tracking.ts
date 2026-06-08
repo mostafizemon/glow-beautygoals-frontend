@@ -87,19 +87,39 @@ export const trackEvent = async (eventName: string, customData: any = {}, userDa
     if (userData.ph) userData.ph = await hashData(userData.ph.replace(/[^0-9]/g, ''));
     if (userData.fn) userData.fn = await hashData(userData.fn);
 
-    // 1. Browser-Side Tracking (Meta)
-    if (typeof window !== 'undefined' && (window as any).fbq) {
-      (window as any).fbq('track', eventName, customData, { eventID: eventId });
-    }
+    // Helper to fire browser events with a retry mechanism (since Pixel config loads async)
+    let metaFired = false;
+    let tikTokFired = false;
 
-    // 2. Browser-Side Tracking (TikTok)
-    if (typeof window !== 'undefined' && (window as any).ttq) {
-      if (eventName === 'PageView') {
-        (window as any).ttq.page({ event_id: eventId });
-      } else {
-        (window as any).ttq.track(getTikTokEventName(eventName), customData, { event_id: eventId });
+    const fireBrowserEvents = (retries = 10) => {
+      if (typeof window === 'undefined') return;
+
+      const fbqReady = typeof (window as any).fbq !== 'undefined';
+      const ttqReady = typeof (window as any).ttq !== 'undefined';
+
+      // 1. Browser-Side Tracking (Meta)
+      if (fbqReady && !metaFired) {
+        (window as any).fbq('track', eventName, customData, { eventID: eventId });
+        metaFired = true;
       }
-    }
+
+      // 2. Browser-Side Tracking (TikTok)
+      if (ttqReady && !tikTokFired) {
+        if (eventName === 'PageView') {
+          (window as any).ttq.page({ event_id: eventId });
+        } else {
+          (window as any).ttq.track(getTikTokEventName(eventName), customData, { event_id: eventId });
+        }
+        tikTokFired = true;
+      }
+
+      // If either script isn't loaded yet, retry every 300ms for up to 3 seconds
+      if ((!metaFired || !tikTokFired) && retries > 0) {
+        setTimeout(() => fireBrowserEvents(retries - 1), 300);
+      }
+    };
+
+    fireBrowserEvents();
 
     // 3. Server-Side Tracking (Go Backend CAPI)
     const payload = {
