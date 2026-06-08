@@ -162,6 +162,7 @@ export default async function ShopPage({
                 {products.map((product, i) => (
                   <div
                     key={product.id}
+                    className="h-full"
                     style={{ animation: 'revealUp 0.5s ease-out both', animationDelay: `${i * 60}ms` }}
                   >
                     <ProductCard product={product as any} />

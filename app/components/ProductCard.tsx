@@ -51,7 +51,7 @@ export default function ProductCard({ product }: { product: Product }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="group relative flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-500 hover:-translate-y-1"
+      className="group relative flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-gray-100/50 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-500 hover:-translate-y-1"
       onMouseEnter={handleHoverIn}
       onMouseLeave={handleHoverOut}
     >
