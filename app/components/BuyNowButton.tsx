@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
 export default function BuyNowButton({ product, className }: { product: any, className?: string }) {
-  const { addToCart } = useCart();
+  const { setBuyNowItem } = useCart();
   const router = useRouter();
 
   const handleBuyNow = (e: React.MouseEvent) => {
@@ -24,8 +24,8 @@ export default function BuyNowButton({ product, className }: { product: any, cla
       currency: 'BDT'
     });
 
-    // Add to cart
-    addToCart({
+    // Set Buy Now item in context (bypasses the main cart)
+    setBuyNowItem({
       id: product.id,
       name: product.name,
       price: product.offer_price && product.offer_price > 0 ? product.offer_price : product.price,
@@ -35,7 +35,7 @@ export default function BuyNowButton({ product, className }: { product: any, cla
     });
     
     // Redirect to checkout
-    router.push('/checkout');
+    router.push('/checkout?buy_now=true');
   };
 
   return (

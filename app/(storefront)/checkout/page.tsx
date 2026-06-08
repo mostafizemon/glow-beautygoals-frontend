@@ -1,15 +1,29 @@
 'use client';
 import { getApiUrl } from '@/lib/api';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../../context/CartContext';
 import { generateEventId, getTrackingIdentifiers, trackEvent } from '@/lib/tracking';
 
 export default function CheckoutPage() {
-  const { cart, cartTotal, clearCart } = useCart();
+  const { cart: mainCart, cartTotal: mainCartTotal, clearCart, buyNowItem, setBuyNowItem } = useCart();
   const router = useRouter();
+  
+  const [isBuyNowMode, setIsBuyNowMode] = useState(false);
+  
+  useEffect(() => {
+    if (window.location.search.includes('buy_now=true') && buyNowItem) {
+      setIsBuyNowMode(true);
+    } else if (buyNowItem) {
+      setBuyNowItem(null);
+    }
+  }, [buyNowItem, setBuyNowItem]);
+
+  const displayCart = isBuyNowMode && buyNowItem ? [buyNowItem] : mainCart;
+  const displayCartTotal = isBuyNowMode && buyNowItem ? buyNowItem.price * buyNowItem.quantity : mainCartTotal;
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -35,26 +49,26 @@ export default function CheckoutPage() {
     return bdPhoneRegex.test(phone);
   };
 
-  const hasFreeDelivery = cart.some(item => item.is_free_delivery) || cartTotal > 5000;
+  const hasFreeDelivery = displayCart.some(item => item.is_free_delivery) || displayCartTotal > 5000;
   const isOutsideDhaka = formData.deliveryArea === 'outside';
   const shippingCost = hasFreeDelivery ? 0 : (isOutsideDhaka ? 120 : 60);
-  const grandTotal = cartTotal > 0 ? cartTotal + shippingCost : 0;
+  const grandTotal = displayCartTotal > 0 ? displayCartTotal + shippingCost : 0;
 
   // Track InitiateCheckout on page load
-  React.useEffect(() => {
-    if (cart.length > 0) {
+  useEffect(() => {
+    if (displayCart.length > 0) {
       trackEvent('InitiateCheckout', {
         value: grandTotal,
         currency: 'BDT',
         content_type: 'product',
-        contents: cart.map(item => ({ content_id: item.id, id: item.id, quantity: item.quantity, price: item.price, item_price: item.price })),
+        contents: displayCart.map(item => ({ content_id: item.id, id: item.id, quantity: item.quantity, price: item.price, item_price: item.price })),
       });
     }
-  }, [cart.length]);
+  }, [displayCart.length]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (cart.length === 0) {
+    if (displayCart.length === 0) {
       alert("Your cart is empty!");
       return;
     }
@@ -73,7 +87,7 @@ export default function CheckoutPage() {
         phone: formData.phone,
         address: formData.address + (formData.note ? ` (Note: ${formData.note})` : ''),
       },
-      items: cart.map(item => ({
+      items: displayCart.map(item => ({
         product_id: item.id,
         quantity: item.quantity,
         price_at_purchase: item.price,
@@ -109,9 +123,9 @@ export default function CheckoutPage() {
         value: grandTotal,
         currency: 'BDT',
         content_type: 'product',
-        content_id: cart[0]?.id || '',
-        content_ids: cart.map(item => item.id),
-        contents: cart.map(item => ({ content_id: item.id, id: item.id, quantity: item.quantity, price: item.price, item_price: item.price })),
+        content_id: displayCart[0]?.id || '',
+        content_ids: displayCart.map(item => item.id),
+        contents: displayCart.map(item => ({ content_id: item.id, id: item.id, quantity: item.quantity, price: item.price, item_price: item.price })),
         order_id: orderPayload.tracking_events.event_id,
       }, {
         fn: formData.name,
@@ -119,7 +133,11 @@ export default function CheckoutPage() {
       }, purchaseEventId, false);
 
       // Clear cart and redirect
-      clearCart();
+      if (isBuyNowMode) {
+        setBuyNowItem(null);
+      } else {
+        clearCart();
+      }
       router.push('/checkout/success');
     } catch (error) {
       console.error("Error placing order:", error);
@@ -251,11 +269,11 @@ export default function CheckoutPage() {
           <div className="bg-gray-50 rounded-2xl p-6 lg:p-8 sticky top-[120px]">
             <h2 className="text-xl font-medium text-charcoal mb-6">Order Summary</h2>
             
-            {cart.length === 0 ? (
+            {displayCart.length === 0 ? (
               <p className="text-gray-500 mb-6">Your cart is empty.</p>
             ) : (
               <div className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2">
-                {cart.map((item) => (
+                {displayCart.map((item) => (
                   <div key={item.id} className="flex gap-4">
                     <div className="relative">
                       <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded bg-white border border-gray-200">
@@ -279,12 +297,12 @@ export default function CheckoutPage() {
             <div className="border-t border-gray-200 pt-6 space-y-4">
               <div className="flex justify-between text-sm text-gray-600">
                 <p>Subtotal</p>
-                <p className="font-medium text-charcoal">{cartTotal.toLocaleString()} Tk</p>
+                <p className="font-medium text-charcoal">{displayCartTotal.toLocaleString()} Tk</p>
               </div>
               <div className="flex justify-between text-sm text-gray-600">
                 <p>Shipping</p>
                 <p className="font-medium text-charcoal">
-                  {cart.length === 0 ? '-' : shippingCost === 0 ? 'Free' : `${shippingCost} Tk`}
+                  {displayCart.length === 0 ? '-' : shippingCost === 0 ? 'Free' : `${shippingCost} Tk`}
                 </p>
               </div>
               <div className="border-t border-gray-200 pt-4 flex justify-between items-center">

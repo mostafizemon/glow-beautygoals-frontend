@@ -73,7 +73,7 @@ export default async function ShopPage({
 
       {/* ── Page header ── */}
       <div className="bg-gradient-to-br from-cream-dark/60 via-blush/10 to-cream px-6 md:px-12 pt-10 pb-12 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[1440px] mx-auto">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-rose-gold mb-2">Our Collection</p>
           <h1 className="text-4xl md:text-5xl font-serif text-charcoal mb-3">Shop All Products</h1>
           <p className="text-gray-500 text-base max-w-xl">
@@ -82,7 +82,7 @@ export default async function ShopPage({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-10">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 pt-10">
         <div className="flex flex-col lg:flex-row gap-10">
 
           {/* ── Sidebar ── */}
@@ -158,7 +158,7 @@ export default async function ShopPage({
             </div>
 
             {products && products.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 xl:gap-8">
                 {products.map((product, i) => (
                   <div
                     key={product.id}

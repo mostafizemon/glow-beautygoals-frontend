@@ -21,6 +21,8 @@ interface CartContextType {
   setIsCartOpen: (isOpen: boolean) => void;
   cartTotal: number;
   cartCount: number;
+  buyNowItem: CartItem | null;
+  setBuyNowItem: (item: CartItem | null) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -29,6 +31,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [buyNowItem, setBuyNowItem] = useState<CartItem | null>(null);
 
   // Load from local storage on mount
   useEffect(() => {
@@ -87,7 +90,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Prevent hydration errors by not rendering cart dependent UI until mounted
   if (!isMounted) {
     return (
-      <CartContext.Provider value={{ cart: [], addToCart, removeFromCart, updateQuantity, clearCart, isCartOpen, setIsCartOpen, cartTotal: 0, cartCount: 0 }}>
+      <CartContext.Provider value={{ cart: [], addToCart, removeFromCart, updateQuantity, clearCart, isCartOpen, setIsCartOpen, cartTotal: 0, cartCount: 0, buyNowItem: null, setBuyNowItem: () => {} }}>
         {children}
       </CartContext.Provider>
     );
@@ -105,6 +108,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setIsCartOpen,
         cartTotal,
         cartCount,
+        buyNowItem,
+        setBuyNowItem,
       }}
     >
       {children}
