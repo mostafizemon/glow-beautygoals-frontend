@@ -21,7 +21,14 @@ export default function BuyNowButton({ product, className }: { product: any, cla
       content_name: product.name,
       content_category: product.categories && product.categories.length > 0 ? product.categories[0] : 'uncategorized',
       value: product.offer_price && product.offer_price > 0 ? product.offer_price : product.price,
-      currency: 'BDT'
+      currency: 'BDT',
+      contents: [{
+        content_id: product.id,
+        content_name: product.name,
+        price: product.offer_price && product.offer_price > 0 ? product.offer_price : product.price,
+        quantity: 1,
+        content_type: 'product'
+      }]
     });
 
     // Set Buy Now item in context (bypasses the main cart)
