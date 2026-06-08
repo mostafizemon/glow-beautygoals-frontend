@@ -64,13 +64,28 @@ export default function AdminTrackingConfig() {
     setMessage({ text: '', type: '' });
 
     try {
+      const cleanedData = {
+        meta: {
+          ...formData.meta,
+          pixel_id: formData.meta.pixel_id.trim(),
+          access_token: formData.meta.access_token.trim(),
+          test_event_code: formData.meta.test_event_code.trim(),
+        },
+        tiktok: {
+          ...formData.tiktok,
+          pixel_id: formData.tiktok.pixel_id.trim(),
+          access_token: formData.tiktok.access_token.trim(),
+          test_event_code: formData.tiktok.test_event_code.trim(),
+        }
+      };
+
       const res = await fetch(`${getApiUrl()}/api/v1/admin/config/tracking`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${getAuthToken()}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(cleanedData)
       });
 
       if (!res.ok) throw new Error('Failed to save configuration');
