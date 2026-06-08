@@ -40,6 +40,18 @@ export default function CheckoutPage() {
   const shippingCost = hasFreeDelivery ? 0 : (isOutsideDhaka ? 120 : 60);
   const grandTotal = cartTotal > 0 ? cartTotal + shippingCost : 0;
 
+  // Track InitiateCheckout on page load
+  React.useEffect(() => {
+    if (cart.length > 0) {
+      trackEvent('InitiateCheckout', {
+        value: grandTotal,
+        currency: 'BDT',
+        content_type: 'product',
+        contents: cart.map(item => ({ content_id: item.id, id: item.id, quantity: item.quantity, price: item.price, item_price: item.price })),
+      });
+    }
+  }, [cart.length]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cart.length === 0) {
