@@ -9,8 +9,6 @@ import { getApiUrl } from '@/lib/api';
 export default function TrackingScripts() {
   const [metaPixel, setMetaPixel] = useState<string | null>(null);
   const [tiktokPixel, setTikTokPixel] = useState<string | null>(null);
-  const [metaReady, setMetaReady] = useState(false);
-  const [tiktokReady, setTikTokReady] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -31,13 +29,17 @@ export default function TrackingScripts() {
 
   // Track Page Views when route changes
   useEffect(() => {
-    const hasPixel = Boolean(metaPixel || tiktokPixel);
-    const ready = (!metaPixel || metaReady) && (!tiktokPixel || tiktokReady);
+    if (!metaPixel && !tiktokPixel) return;
 
-    if (hasPixel && ready) {
+    // Inline scripts don't trigger onReady in Next.js reliable. 
+    // The snippet creates window.fbq / window.ttq immediately.
+    // A tiny timeout ensures the DOM has updated and Script tags are injected.
+    const timer = setTimeout(() => {
       trackEvent('PageView', { page_path: pathname });
-    }
-  }, [pathname, metaPixel, tiktokPixel, metaReady, tiktokReady]);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [pathname, metaPixel, tiktokPixel]);
 
   return (
     <>
@@ -46,7 +48,6 @@ export default function TrackingScripts() {
         <Script
           id="meta-pixel-base"
           strategy="afterInteractive"
-          onReady={() => setMetaReady(true)}
           dangerouslySetInnerHTML={{
             __html: `
               !function(f,b,e,v,n,t,s)
@@ -68,7 +69,6 @@ export default function TrackingScripts() {
         <Script
           id="tiktok-pixel-base"
           strategy="afterInteractive"
-          onReady={() => setTikTokReady(true)}
           dangerouslySetInnerHTML={{
             __html: `
               !function (w, d, t) {
