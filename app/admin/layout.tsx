@@ -35,8 +35,10 @@ export default function AdminLayout({
       if (decoded && decoded.role) {
         setRole(decoded.role);
       }
+    } else {
+      setRole(null);
     }
-  }, []);
+  }, [pathname]);
 
   // Don't show sidebar on the login page
   if (pathname === '/admin/login') {
