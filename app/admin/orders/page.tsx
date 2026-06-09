@@ -17,13 +17,20 @@ interface Order {
     phone: string;
     address: string;
   };
+  items: OrderItem[];
   total_amount: number;
   status: string;
   created_at: string;
 }
 
+interface Product {
+  id: string;
+  name: string;
+}
+
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [productsMap, setProductsMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
 
@@ -36,24 +43,37 @@ export default function AdminOrders() {
       ?.split('=')[1] || '';
   };
 
-  const fetchOrders = async () => {
+  const fetchOrdersAndProducts = async () => {
     try {
-      const res = await fetch(`${getApiUrl()}/api/v1/admin/orders`, {
-        headers: { 'Authorization': `Bearer ${getAuthToken()}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
+      const [ordersRes, productsRes] = await Promise.all([
+        fetch(`${getApiUrl()}/api/v1/admin/orders`, {
+          headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+        }),
+        fetch(`${getApiUrl()}/api/v1/products`)
+      ]);
+
+      if (ordersRes.ok) {
+        const data = await ordersRes.json();
         setOrders(data || []);
       }
+      
+      if (productsRes.ok) {
+        const pData = await productsRes.json();
+        const map: Record<string, string> = {};
+        pData.forEach((p: Product) => {
+          map[p.id] = p.name;
+        });
+        setProductsMap(map);
+      }
     } catch (error) {
-      console.error('Failed to fetch orders:', error);
+      console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrdersAndProducts();
   }, []);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -172,6 +192,8 @@ export default function AdminOrders() {
                   <th className="px-6 py-4 font-medium">Order Number</th>
                   <th className="px-6 py-4 font-medium">Date</th>
                   <th className="px-6 py-4 font-medium">Customer</th>
+                  <th className="px-6 py-4 font-medium">Address</th>
+                  <th className="px-6 py-4 font-medium">Products</th>
                   <th className="px-6 py-4 font-medium">Total</th>
                   <th className="px-6 py-4 font-medium">Status</th>
                   <th className="px-6 py-4 font-medium text-right">Actions</th>
@@ -191,6 +213,20 @@ export default function AdminOrders() {
                     <td className="px-6 py-4">
                       <div className="font-medium text-charcoal">{order.customer.name}</div>
                       <div className="text-xs text-gray-500">{order.customer.phone}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-xs text-gray-600 max-w-[200px] truncate" title={order.customer.address}>
+                        {order.customer.address}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-xs text-gray-600 max-w-[250px] flex flex-col gap-1">
+                        {order.items?.map((item, idx) => (
+                          <div key={idx} className="truncate" title={productsMap[item.product_id] || 'Unknown Product'}>
+                            <span className="font-medium">{item.quantity}x</span> {productsMap[item.product_id] || 'Unknown Product'}
+                          </div>
+                        ))}
+                      </div>
                     </td>
                     <td className="px-6 py-4 font-medium text-charcoal">
                       {order.total_amount.toLocaleString()} Tk
