@@ -158,8 +158,8 @@ export default function AdminOrderDetails() {
 
   return (
     <div className="max-w-4xl mx-auto pb-12">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
           <Link href="/admin/orders" className="p-2 -ml-2 text-gray-400 hover:text-charcoal transition-colors rounded-full hover:bg-gray-100">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           </Link>
