@@ -61,7 +61,8 @@ export default function AdminLayout({
               alt="Glow & Beauty Goals"
               width={140}
               height={56}
-              className="h-14 w-auto object-contain"
+              style={{ width: 'auto', height: 'auto' }}
+              className="h-14 object-contain"
               priority
             />
           </Link>

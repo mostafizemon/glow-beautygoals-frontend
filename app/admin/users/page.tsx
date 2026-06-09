@@ -85,7 +85,7 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto pb-12">
+    <div className="w-full mx-auto pb-12">
       <div className="mb-8 flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-serif text-charcoal mb-2">Staff Management</h1>

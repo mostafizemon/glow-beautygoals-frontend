@@ -43,6 +43,7 @@ export default function AdminOrderDetails() {
   // Edit State
   const [isEditing, setIsEditing] = useState(false);
   const [editCustomer, setEditCustomer] = useState({ name: '', phone: '', address: '' });
+  const [editTotalAmount, setEditTotalAmount] = useState(0);
   const [editStatus, setEditStatus] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -71,6 +72,7 @@ export default function AdminOrderDetails() {
           phone: data.customer.phone || '',
           address: data.customer.address || ''
         });
+        setEditTotalAmount(data.total_amount || 0);
         setEditStatus(data.status);
       } else {
         alert('Failed to fetch order. It may have been deleted.');
@@ -99,14 +101,17 @@ export default function AdminOrderDetails() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // 1. Update customer details
+      // 1. Update customer details and total amount
       const updateDetailsRes = await fetch(`${getApiUrl()}/api/v1/admin/orders/${orderId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${getAuthToken()}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(editCustomer)
+        body: JSON.stringify({
+          customer: editCustomer,
+          total_amount: editTotalAmount
+        })
       });
 
       // 2. Update order status
@@ -120,7 +125,7 @@ export default function AdminOrderDetails() {
       });
 
       if (updateDetailsRes.ok && updateStatusRes.ok) {
-        setOrder(prev => prev ? { ...prev, customer: editCustomer, status: editStatus } : prev);
+        setOrder(prev => prev ? { ...prev, customer: editCustomer, status: editStatus, total_amount: editTotalAmount } : prev);
         setIsEditing(false);
         alert('Order updated successfully!');
       } else {
@@ -321,7 +326,19 @@ export default function AdminOrderDetails() {
             <div className="p-6 bg-gray-50/50 border-t border-gray-100">
               <div className="flex justify-between items-center text-lg font-serif">
                 <span className="text-charcoal">Total Amount</span>
-                <span className="text-charcoal font-bold">{order.total_amount.toLocaleString()} Tk</span>
+                {isEditing ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={editTotalAmount}
+                      onChange={(e) => setEditTotalAmount(Number(e.target.value))}
+                      className="w-32 border-gray-300 rounded shadow-sm focus:border-charcoal focus:ring focus:ring-charcoal/20 text-sm p-2 border outline-none text-right font-sans"
+                    />
+                    <span className="text-charcoal font-bold text-sm">Tk</span>
+                  </div>
+                ) : (
+                  <span className="text-charcoal font-bold">{order.total_amount.toLocaleString()} Tk</span>
+                )}
               </div>
             </div>
           </div>

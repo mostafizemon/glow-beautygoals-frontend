@@ -149,7 +149,7 @@ export default function AdminOrders() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto pb-12">
+    <div className="w-full mx-auto pb-12">
       <div className="mb-8">
         <h1 className="text-3xl font-serif text-charcoal mb-2">Orders</h1>
         <p className="text-gray-500">Manage customer orders and fulfillment.</p>
